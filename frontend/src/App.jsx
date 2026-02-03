@@ -1,16 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
+import { useEffect, useState } from "react";
 
-export default function App() {
+function App() {
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/health")
+      .then((res) => res.json())
+      .then((data) => setMessage(data.message))
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+    <div style={{ padding: "40px" }}>
+      <h1>Legal Intelligence System</h1>
+      <p>{message}</p>
+    </div>
   );
 }
+
+export default App;
