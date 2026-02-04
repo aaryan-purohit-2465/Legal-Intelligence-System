@@ -1,38 +1,48 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import API from "../api";
 
-export default function Login() {
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await API.post("/auth/login", {
+        email,
+        password,
+      });
+
+      localStorage.setItem("token", res.data.token);
+      alert("Login successful");
+      window.location.href = "/dashboard";
+    } catch (err) {
+      alert(err.response.data.message);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
-      <div className="bg-gray-900/80 backdrop-blur-xl p-10 rounded-2xl w-96 shadow-xl border border-gray-700">
-        
-        <h2 className="text-3xl font-bold mb-6 text-center text-white">
-          AI Legal System
-        </h2>
+    <div>
+      <h2>Login</h2>
 
+      <form onSubmit={handleLogin}>
         <input
-          type="text"
-          placeholder="Email or Username"
-          className="w-full p-3 mb-4 bg-gray-800 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-3 mb-4 bg-gray-800 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="w-full bg-blue-600 p-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-          Login
-        </button>
-
-        <p className="mt-5 text-center text-gray-400">
-          Don’t have an account?{" "}
-          <Link to="/register" className="text-blue-400 hover:underline">
-            Register
-          </Link>
-        </p>
-
-      </div>
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
 }
+
+export default Login;
