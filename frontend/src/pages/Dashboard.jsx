@@ -1,20 +1,18 @@
 import Sidebar from "../components/Sidebar";
 
-export default function Dashboard() {
+function Dashboard() {
   return (
-    <div className="flex min-h-screen bg-gray-800">
+    <div style={{ display: "flex" }}>
+
       <Sidebar />
 
-      <div className="flex-1 p-6 text-white">
-        <h1 className="text-2xl font-bold">
-          Upload Case Documents
-        </h1>
-
-        <input
-          type="file"
-          className="mt-4"
-        />
+      <div style={{ padding: "20px", flex: 1 }}>
+        <h2>Upload Case Documents</h2>
+        <input type="file" />
       </div>
+
     </div>
   );
 }
+
+export default Dashboard;

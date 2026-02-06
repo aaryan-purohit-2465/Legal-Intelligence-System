@@ -1,22 +1,29 @@
-export default function Sidebar() {
+import { useNavigate } from "react-router-dom";
+
+function Sidebar() {
+
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   return (
-    <div className="w-64 bg-gray-900 text-white p-4">
-      <h2 className="text-xl font-bold mb-6">
-        AI Legal System
-      </h2>
+    <div style={{
+      width: "220px",
+      height: "100vh",
+      background: "#111",
+      color: "white",
+      padding: "20px"
+    }}>
+      <h3>AI Legal System</h3>
 
-      <button className="w-full bg-gray-800 p-2 rounded mb-2">
-        + New Case
+      <button onClick={logout} style={{ marginTop: "20px" }}>
+        Logout
       </button>
-
-      <div className="mt-4 space-y-2">
-        <div className="bg-gray-800 p-2 rounded">
-          Case 1
-        </div>
-        <div className="bg-gray-800 p-2 rounded">
-          Case 2
-        </div>
-      </div>
     </div>
   );
 }
+
+export default Sidebar;
