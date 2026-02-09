@@ -7,12 +7,30 @@ function Dashboard() {
   const [file, setFile] = useState(null);
 
   const uploadCase = async () => {
+
+    if (!file) {
+      alert("Please select a file first");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("userId", "123"); // temporary
+    formData.append("userId", "123");
 
-    await API.post("/cases/upload", formData);
-    alert("Case uploaded");
+    try {
+      const res = await API.post("/cases/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+
+      console.log(res.data);
+      alert("Case uploaded successfully");
+
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+    }
   };
 
   return (
@@ -23,11 +41,12 @@ function Dashboard() {
       <div style={{ padding: "20px" }}>
         <h2>Upload Case Document</h2>
 
-        <input type="file"
-          onChange={(e)=>setFile(e.target.files[0])}
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files[0])}
         />
 
-        <br/><br/>
+        <br /><br />
 
         <button onClick={uploadCase}>
           Upload
