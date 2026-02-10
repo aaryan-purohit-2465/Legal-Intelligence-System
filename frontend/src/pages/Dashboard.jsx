@@ -5,52 +5,49 @@ import API from "../api";
 function Dashboard() {
 
   const [file, setFile] = useState(null);
+  const [selectedCase, setSelectedCase] = useState(null);
 
   const uploadCase = async () => {
 
-    if (!file) {
-      alert("Please select a file first");
-      return;
-    }
+    if (!file) return alert("Select file");
 
     const formData = new FormData();
     formData.append("file", file);
     formData.append("userId", "123");
 
-    try {
-      const res = await API.post("/cases/upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
+    await API.post("/cases/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
 
-      console.log(res.data);
-      alert("Case uploaded successfully");
-
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed");
-    }
+    alert("Uploaded");
+    window.location.reload();
   };
 
   return (
     <div style={{ display: "flex" }}>
 
-      <Sidebar />
+      <Sidebar setSelectedCase={setSelectedCase} />
 
-      <div style={{ padding: "20px" }}>
+      <div style={{ padding: "20px", flex: 1 }}>
         <h2>Upload Case Document</h2>
 
-        <input
-          type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
+        <input type="file" onChange={(e)=>setFile(e.target.files[0])}/>
+        <br/><br/>
+        <button onClick={uploadCase}>Upload</button>
 
-        <br /><br />
+        <hr/>
 
-        <button onClick={uploadCase}>
-          Upload
-        </button>
+        {selectedCase && (
+          <div>
+            <h3>Selected Case</h3>
+            <p><b>File:</b> {selectedCase.filename}</p>
+
+            <h4>Extracted Text</h4>
+            <div style={{ maxHeight: "300px", overflow: "auto", background:"#eee", padding:"10px" }}>
+              {selectedCase.extractedText || "No text extracted"}
+            </div>
+          </div>
+        )}
 
       </div>
 
