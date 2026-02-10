@@ -1,22 +1,41 @@
-export default function Sidebar() {
+import { useEffect, useState } from "react";
+import API from "../api";
+import { useNavigate } from "react-router-dom";
+
+function Sidebar({ setSelectedCase }) {
+
+  const navigate = useNavigate();
+  const [cases, setCases] = useState([]);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
+  useEffect(() => {
+    API.get("/cases/123")
+      .then(res => setCases(res.data));
+  }, []);
+
   return (
-    <div className="w-64 bg-gray-900 text-white p-4">
-      <h2 className="text-xl font-bold mb-6">
-        AI Legal System
-      </h2>
+    <div style={{ width: "250px", background:"#111", color:"white", padding:"20px" }}>
+      <h3>AI Legal System</h3>
 
-      <button className="w-full bg-gray-800 p-2 rounded mb-2">
-        + New Case
-      </button>
+      <button onClick={logout}>Logout</button>
 
-      <div className="mt-4 space-y-2">
-        <div className="bg-gray-800 p-2 rounded">
-          Case 1
+      <h4 style={{ marginTop: "20px" }}>Case History</h4>
+
+      {cases.map(c => (
+        <div
+          key={c._id}
+          style={{ cursor: "pointer", marginBottom: "10px" }}
+          onClick={() => setSelectedCase(c)}
+        >
+          {c.filename}
         </div>
-        <div className="bg-gray-800 p-2 rounded">
-          Case 2
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
+
+export default Sidebar;
