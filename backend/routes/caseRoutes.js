@@ -1,7 +1,10 @@
 import express from "express";
 import multer from "multer";
 import fs from "fs";
-import pdf from "pdf-parse";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const pdf = require("pdf-parse");
+
 import Case from "../models/case.js";
 
 const router = express.Router();
