@@ -7,7 +7,13 @@ const caseSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  insights: {
+  summary: String,
+  keywords: [String],
+  wordCount: Number
+},
+
 });
 
 export default mongoose.model("Case", caseSchema);

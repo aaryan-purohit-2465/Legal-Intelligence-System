@@ -4,6 +4,8 @@ import fs from "fs";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
+import { generateCaseInsights } from "../services/aiService.js";
+
 
 import Case from "../models/case.js";
 
@@ -32,11 +34,16 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 
     const pdfData = await pdf(dataBuffer);
 
-    const newCase = new Case({
-      userId: req.body.userId || "123",
-      filename: req.file.filename,
-      extractedText: pdfData.text
-    });
+    const insights = generateCaseInsights(pdfData.text);
+
+const newCase = new Case({
+  userId: req.body.userId,
+  filename: req.file.filename,
+  extractedText: pdfData.text,
+  insights
+});
+
+
 
     await newCase.save();
 
