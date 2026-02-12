@@ -2,80 +2,81 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import { createRequire } from "module";
+import Case from "../models/case.js";
+
 const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
-import { generateCaseInsights } from "../services/aiService.js";
-
-
-import Case from "../models/case.js";
 
 const router = express.Router();
 
-/* ================= STORAGE CONFIG ================= */
-
+// ================= STORAGE =================
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
-  }
+  },
 });
 
 const upload = multer({ storage });
 
-/* ================= UPLOAD + EXTRACT ================= */
+// ================= KEYWORD EXTRACTOR =================
+function extractKeywords(text) {
+  const stopWords = [
+    "the","is","and","or","a","an","to","of","in","for","on",
+    "with","as","by","at","from","that","this","it"
+  ];
 
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-zA-Z ]/g, "")
+    .split(" ")
+    .filter(word => word.length > 3 && !stopWords.includes(word));
+
+  const frequency = {};
+
+  words.forEach(word => {
+    frequency[word] = (frequency[word] || 0) + 1;
+  });
+
+  return Object.keys(frequency)
+    .sort((a, b) => frequency[b] - frequency[a])
+    .slice(0, 10);
+}
+
+// ================= UPLOAD ROUTE =================
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
     const dataBuffer = fs.readFileSync(req.file.path);
-
     const pdfData = await pdf(dataBuffer);
 
-let cleanedText = pdfData.text
-  .replace(/\r\n/g, "\n")
-  .replace(/\n{2,}/g, "\n\n")
-  .replace(/[ \t]{2,}/g, " ")
-  .trim();
+    const keywords = extractKeywords(pdfData.text);
 
-
-    const insights = generateCaseInsights(pdfData.text);
-
-const newCase = new Case({
-  userId: req.body.userId,
-  filename: req.file.filename,
-  extractedText: cleanedText
-});
-
-
-
+    const newCase = new Case({
+      userId: req.body.userId,
+      filename: req.file.filename,
+      extractedText: pdfData.text,
+      insights: {
+        keywords: keywords
+      }
+    });
 
     await newCase.save();
 
-    console.log("File uploaded & text extracted");
-
     res.json({
-      message: "File uploaded and text extracted",
-      textLength: pdfData.text.length
+      message: "File uploaded & analyzed successfully",
+      keywords
     });
 
   } catch (err) {
-    console.error("PDF extraction error:", err.message);
-    res.status(500).json({ message: "Text extraction failed" });
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Upload failed" });
   }
 });
 
-/* ================= GET USER CASES ================= */
-
+// ================= GET USER CASES =================
 router.get("/:userId", async (req, res) => {
-  try {
-    const cases = await Case.find({ userId: req.params.userId });
-    res.json(cases);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching cases" });
-  }
+  const cases = await Case.find({ userId: req.params.userId });
+  res.json(cases);
 });
 
 export default router;
