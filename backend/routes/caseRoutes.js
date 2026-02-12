@@ -34,14 +34,21 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 
     const pdfData = await pdf(dataBuffer);
 
+let cleanedText = pdfData.text
+  .replace(/\r\n/g, "\n")
+  .replace(/\n{2,}/g, "\n\n")
+  .replace(/[ \t]{2,}/g, " ")
+  .trim();
+
+
     const insights = generateCaseInsights(pdfData.text);
 
 const newCase = new Case({
   userId: req.body.userId,
   filename: req.file.filename,
-  extractedText: pdfData.text,
-  insights
+  extractedText: cleanedText
 });
+
 
 
 
