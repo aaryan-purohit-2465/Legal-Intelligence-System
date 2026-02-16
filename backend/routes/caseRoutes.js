@@ -1,8 +1,11 @@
 import express from "express";
 import multer from "multer";
 import fs from "fs";
-import pdf from "pdf-parse";
+import { createRequire } from "module";
 import Case from "../models/case.js";
+
+const require = createRequire(import.meta.url);
+const pdf = require("pdf-parse");
 
 const router = express.Router();
 
@@ -25,7 +28,6 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 
     const text = pdfData.text;
 
-    // Basic keyword extraction (top 10 words > 4 chars)
     const words = text
       .toLowerCase()
       .replace(/[^a-zA-Z ]/g, "")
@@ -58,11 +60,10 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     res.json({ message: "File processed successfully" });
 
   } catch (err) {
-    console.error(err);
+    console.error("PDF ERROR:", err);
     res.status(500).json({ message: "Processing failed" });
   }
 });
-
 
 /* ============================= */
 /* Get User Cases                */
@@ -71,7 +72,6 @@ router.get("/:userId", async (req, res) => {
   const cases = await Case.find({ userId: req.params.userId }).sort({ createdAt: -1 });
   res.json(cases);
 });
-
 
 /* ============================= */
 /* Search Cases                  */
