@@ -1,9 +1,7 @@
 import express from "express";
 import multer from "multer";
 import fs from "fs";
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const pdf = require("pdf-parse");
+import pdf from "pdf-parse";
 import Case from "../models/case.js";
 
 const router = express.Router();
@@ -17,65 +15,80 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Simple text cleaning
-const cleanText = (text) => {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s]/gi, "")
-    .split(/\s+/);
-};
-
-// Stopwords
-const stopWords = new Set([
-  "the","is","and","to","of","in","for","on","with","a","an","this",
-  "that","it","as","at","by","from","or","are","be","was","were"
-]);
-
+/* ============================= */
+/* Upload + Extract + Insights   */
+/* ============================= */
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const dataBuffer = fs.readFileSync(req.file.path);
     const pdfData = await pdf(dataBuffer);
 
-    const words = cleanText(pdfData.text);
+    const text = pdfData.text;
+
+    // Basic keyword extraction (top 10 words > 4 chars)
+    const words = text
+      .toLowerCase()
+      .replace(/[^a-zA-Z ]/g, "")
+      .split(" ")
+      .filter(word => word.length > 4);
 
     const frequency = {};
     words.forEach(word => {
-      if (!stopWords.has(word) && word.length > 3) {
-        frequency[word] = (frequency[word] || 0) + 1;
-      }
+      frequency[word] = (frequency[word] || 0) + 1;
     });
 
-    const sortedKeywords = Object.entries(frequency)
-      .sort((a,b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(item => item[0]);
+    const keywords = Object.keys(frequency)
+      .sort((a, b) => frequency[b] - frequency[a])
+      .slice(0, 10);
 
-    const summary = pdfData.text.substring(0, 300) + "...";
+    const summary = text.slice(0, 300);
 
     const newCase = new Case({
       userId: req.body.userId,
       filename: req.file.filename,
-      extractedText: pdfData.text,
+      extractedText: text,
       insights: {
-        keywords: sortedKeywords,
-        frequency,
-        summary
+        summary,
+        keywords
       }
     });
 
     await newCase.save();
 
-    res.json({ message: "File uploaded and analyzed" });
+    res.json({ message: "File processed successfully" });
 
   } catch (err) {
-    console.error("Upload error:", err);
+    console.error(err);
     res.status(500).json({ message: "Processing failed" });
   }
 });
 
+
+/* ============================= */
+/* Get User Cases                */
+/* ============================= */
 router.get("/:userId", async (req, res) => {
-  const cases = await Case.find({ userId: req.params.userId });
+  const cases = await Case.find({ userId: req.params.userId }).sort({ createdAt: -1 });
   res.json(cases);
+});
+
+
+/* ============================= */
+/* Search Cases                  */
+/* ============================= */
+router.get("/search/:userId/:query", async (req, res) => {
+  const { userId, query } = req.params;
+
+  try {
+    const results = await Case.find({
+      userId,
+      extractedText: { $regex: query, $options: "i" }
+    });
+
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: "Search failed" });
+  }
 });
 
 export default router;
