@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
-import API from "../api";
 import { useNavigate } from "react-router-dom";
+import API from "../api";
 
-function Sidebar({ onSelectCase }) {
-  const [cases, setCases] = useState([]);
+function Sidebar({ setSelectedCase }) {
   const navigate = useNavigate();
+  const [cases, setCases] = useState([]);
+  const [search, setSearch] = useState("");
+
+  const userId = "123"; // temporary
+
+  const fetchCases = async () => {
+    const res = await API.get(`/cases/${userId}`);
+    setCases(res.data);
+  };
+
+  const searchCases = async () => {
+    if (!search) return fetchCases();
+
+    const res = await API.get(`/cases/search/${userId}/${search}`);
+    setCases(res.data);
+  };
 
   useEffect(() => {
-    API.get("/cases/123")
-      .then(res => setCases(res.data));
+    fetchCases();
   }, []);
 
   const logout = () => {
@@ -17,31 +31,38 @@ function Sidebar({ onSelectCase }) {
   };
 
   return (
-    <div style={{
-      width: "250px",
-      background: "#111",
-      color: "white",
-      padding: "20px"
-    }}>
+    <div style={{ width: "260px", background: "#111", color: "white", padding: "20px" }}>
       <h3>AI Legal System</h3>
 
       <button onClick={logout}>Logout</button>
 
-      <h4 style={{ marginTop: "20px" }}>
-        Case History
-      </h4>
+      <hr />
+
+      <input
+        type="text"
+        placeholder="Search documents..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ width: "100%", padding: "6px", marginBottom: "10px" }}
+      />
+
+      <button onClick={searchCases} style={{ width: "100%" }}>
+        Search
+      </button>
+
+      <h4 style={{ marginTop: "20px" }}>Case History</h4>
 
       {cases.map((c) => (
         <div
           key={c._id}
           style={{
+            padding: "8px",
+            marginBottom: "6px",
             background: "#222",
-            padding: "10px",
-            marginBottom: "10px",
-            borderRadius: "8px",
-            cursor: "pointer"
+            cursor: "pointer",
+            borderRadius: "6px"
           }}
-          onClick={() => onSelectCase(c)}
+          onClick={() => setSelectedCase(c)}
         >
           {c.filename}
         </div>
