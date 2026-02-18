@@ -3,9 +3,9 @@ import Sidebar from "../components/Sidebar";
 import API from "../api";
 
 function Dashboard() {
-
   const [file, setFile] = useState(null);
   const [selectedCase, setSelectedCase] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const uploadCase = async () => {
     const formData = new FormData();
@@ -22,14 +22,23 @@ function Dashboard() {
 
     await API.delete(`/cases/${selectedCase._id}`);
     alert("Case deleted");
-
     setSelectedCase(null);
     window.location.reload();
   };
 
+  const highlightText = (text) => {
+    if (!searchTerm) return text;
+
+    const regex = new RegExp(`(${searchTerm})`, "gi");
+    return text.replace(regex, `<mark>$1</mark>`);
+  };
+
   return (
     <div style={{ display: "flex" }}>
-      <Sidebar setSelectedCase={setSelectedCase} />
+      <Sidebar
+        setSelectedCase={setSelectedCase}
+        setSearchTerm={setSearchTerm}
+      />
 
       <div style={{ padding: "20px", width: "100%" }}>
         <h2>Upload Case Document</h2>
@@ -83,14 +92,17 @@ function Dashboard() {
             ))}
 
             <h4>Extracted Text</h4>
-            <div style={{
-              background:"#f4f4f4",
-              padding:"15px",
-              maxHeight:"300px",
-              overflowY:"scroll"
-            }}>
-              {selectedCase.extractedText}
-            </div>
+            <div
+              style={{
+                background:"#f4f4f4",
+                padding:"15px",
+                maxHeight:"300px",
+                overflowY:"scroll"
+              }}
+              dangerouslySetInnerHTML={{
+                __html: highlightText(selectedCase.extractedText)
+              }}
+            />
           </>
         )}
       </div>

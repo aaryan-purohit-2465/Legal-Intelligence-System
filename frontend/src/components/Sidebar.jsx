@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 
-function Sidebar({ setSelectedCase }) {
+function Sidebar({ setSelectedCase, setSearchTerm }) {
   const navigate = useNavigate();
   const [cases, setCases] = useState([]);
   const [search, setSearch] = useState("");
 
-  const userId = "123"; // temporary
+  const userId = "123";
 
   const fetchCases = async () => {
     const res = await API.get(`/cases/${userId}`);
@@ -15,7 +15,12 @@ function Sidebar({ setSelectedCase }) {
   };
 
   const searchCases = async () => {
-    if (!search) return fetchCases();
+    if (!search) {
+      setSearchTerm("");
+      return fetchCases();
+    }
+
+    setSearchTerm(search);
 
     const res = await API.get(`/cases/search/${userId}/${search}`);
     setCases(res.data);
