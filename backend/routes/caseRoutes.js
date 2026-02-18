@@ -60,7 +60,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     res.json({ message: "File processed successfully" });
 
   } catch (err) {
-    console.error("PDF ERROR:", err);
+    console.error(err);
     res.status(500).json({ message: "Processing failed" });
   }
 });
@@ -88,6 +88,18 @@ router.get("/search/:userId/:query", async (req, res) => {
     res.json(results);
   } catch (err) {
     res.status(500).json({ message: "Search failed" });
+  }
+});
+
+/* ============================= */
+/* Delete Case                   */
+/* ============================= */
+router.delete("/:id", async (req, res) => {
+  try {
+    await Case.findByIdAndDelete(req.params.id);
+    res.json({ message: "Case deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Delete failed" });
   }
 });
 
