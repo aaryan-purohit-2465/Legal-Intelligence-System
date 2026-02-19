@@ -1,29 +1,46 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import API from "../api";
+import { getUserId } from "../utils/auth";
 
 function Dashboard() {
   const [file, setFile] = useState(null);
   const [selectedCase, setSelectedCase] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const uploadCase = async () => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("userId", "123");
+  const userId = getUserId();
 
-    await API.post("/cases/upload", formData);
-    alert("Case uploaded");
-    window.location.reload();
-  };
+  const uploadCase = async () => {
+  if (!file) return alert("Select a file first");
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("userId", userId);
+
+  try {
+    const res = await API.post("/cases/upload", formData);
+    alert("Case uploaded successfully");
+
+    // Refresh sidebar data without reload
+    setSelectedCase(res.data.case || null);
+    setFile(null);
+  } catch (err) {
+    alert("Upload failed");
+  }
+};
+
 
   const deleteCase = async () => {
     if (!selectedCase) return;
 
-    await API.delete(`/cases/${selectedCase._id}`);
-    alert("Case deleted");
-    setSelectedCase(null);
-    window.location.reload();
+    try {
+      await API.delete(`/cases/${selectedCase._id}`);
+      alert("Case deleted");
+      setSelectedCase(null);
+      window.location.reload();
+    } catch (err) {
+      alert("Delete failed");
+    }
   };
 
   const highlightText = (text) => {
@@ -45,16 +62,16 @@ function Dashboard() {
 
         <input
           type="file"
-          onChange={(e)=>setFile(e.target.files[0])}
+          onChange={(e) => setFile(e.target.files[0])}
         />
 
-        <br/><br/>
+        <br /><br />
 
         <button onClick={uploadCase}>Upload</button>
 
         {selectedCase && (
           <>
-            <hr/>
+            <hr />
 
             <h3>{selectedCase.filename}</h3>
 
@@ -73,34 +90,39 @@ function Dashboard() {
             </button>
 
             <h4>Summary</h4>
-            <p style={{ background:"#eee", padding:"10px" }}>
-              {selectedCase.insights.summary}
+            <p style={{ background: "#eee", padding: "10px" }}>
+              {selectedCase.insights?.summary}
             </p>
 
             <h4>Keywords</h4>
-            {selectedCase.insights.keywords.map((k,i)=>(
-              <span key={i} style={{
-                background:"#111",
-                color:"white",
-                padding:"5px 10px",
-                margin:"5px",
-                borderRadius:"20px",
-                fontSize:"12px"
-              }}>
-                {k}
-              </span>
-            ))}
+            <div>
+              {selectedCase.insights?.keywords?.map((k, i) => (
+                <span
+                  key={i}
+                  style={{
+                    background: "#111",
+                    color: "white",
+                    padding: "5px 10px",
+                    margin: "5px",
+                    borderRadius: "20px",
+                    fontSize: "12px"
+                  }}
+                >
+                  {k}
+                </span>
+              ))}
+            </div>
 
             <h4>Extracted Text</h4>
             <div
               style={{
-                background:"#f4f4f4",
-                padding:"15px",
-                maxHeight:"300px",
-                overflowY:"scroll"
+                background: "#f4f4f4",
+                padding: "15px",
+                maxHeight: "300px",
+                overflowY: "scroll"
               }}
               dangerouslySetInnerHTML={{
-                __html: highlightText(selectedCase.extractedText)
+                __html: highlightText(selectedCase.extractedText || "")
               }}
             />
           </>

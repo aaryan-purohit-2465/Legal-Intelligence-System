@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
+import { getUserId } from "../utils/auth";
 
 function Sidebar({ setSelectedCase, setSearchTerm }) {
   const navigate = useNavigate();
   const [cases, setCases] = useState([]);
   const [search, setSearch] = useState("");
 
-  const userId = "123";
+  const userId = getUserId();
 
   const fetchCases = async () => {
     const res = await API.get(`/cases/${userId}`);
@@ -27,8 +28,8 @@ function Sidebar({ setSelectedCase, setSearchTerm }) {
   };
 
   useEffect(() => {
-    fetchCases();
-  }, []);
+    if (userId) fetchCases();
+  }, [userId]);
 
   const logout = () => {
     localStorage.removeItem("token");
