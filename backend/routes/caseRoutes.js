@@ -1,16 +1,16 @@
 import express from "express";
 import multer from "multer";
 import fs from "fs";
-import pdf from "pdf-parse";
+import { createRequire } from "module";
 import Case from "../models/case.js";
+
+const require = createRequire(import.meta.url);
+const pdf = require("pdf-parse");
 
 const router = express.Router();
 
-// File upload setup
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
+  destination: "uploads/",
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
   }
@@ -18,98 +18,88 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ================== UPLOAD CASE ==================
+/* ============================= */
+/* Upload + Extract + Insights   */
+/* ============================= */
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
-    const filePath = req.file.path;
-    const dataBuffer = fs.readFileSync(filePath);
-
+    const dataBuffer = fs.readFileSync(req.file.path);
     const pdfData = await pdf(dataBuffer);
+
     const text = pdfData.text;
 
-    // 🔥 KEYWORD EXTRACTION
     const words = text
       .toLowerCase()
-      .replace(/[^a-z\s]/g, "")
-      .split(/\s+/);
+      .replace(/[^a-zA-Z ]/g, "")
+      .split(" ")
+      .filter(word => word.length > 4);
 
-    const freq = {};
+    const frequency = {};
     words.forEach(word => {
-      if (word.length > 4) {
-        freq[word] = (freq[word] || 0) + 1;
-      }
+      frequency[word] = (frequency[word] || 0) + 1;
     });
 
-    const keywords = Object.keys(freq)
-      .sort((a, b) => freq[b] - freq[a])
+    const keywords = Object.keys(frequency)
+      .sort((a, b) => frequency[b] - frequency[a])
       .slice(0, 10);
 
-    // 🔥 SIMPLE SUMMARY
-    const summary = text.substring(0, 200);
+    const summary = text.slice(0, 300);
 
-    // 🔥 CREDIBILITY SCORE
-    const credibilityKeywords = [
-      "certificate",
-      "verified",
-      "approved",
-      "official",
-      "government",
-      "university",
-      "institute",
-      "license",
-      "valid",
-      "certified"
-    ];
-
-    let score = 0;
-
-    credibilityKeywords.forEach(word => {
-      if (text.toLowerCase().includes(word)) {
-        score += 10;
-      }
-    });
-
-    score = Math.min(score, 100);
-
-    // 🔥 SAVE TO DB
     const newCase = new Case({
       userId: req.body.userId,
       filename: req.file.filename,
       extractedText: text,
       insights: {
         summary,
-        keywords,
-        credibilityScore: score
+        keywords
       }
     });
 
     await newCase.save();
 
-    res.json(newCase);
+    res.json({ message: "File processed successfully" });
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error processing file" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Processing failed" });
   }
 });
 
-// ================== GET ALL CASES ==================
+/* ============================= */
+/* Get User Cases                */
+/* ============================= */
 router.get("/:userId", async (req, res) => {
+  const cases = await Case.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+  res.json(cases);
+});
+
+/* ============================= */
+/* Search Cases                  */
+/* ============================= */
+router.get("/search/:userId/:query", async (req, res) => {
+  const { userId, query } = req.params;
+
   try {
-    const cases = await Case.find({ userId: req.params.userId }).sort({ createdAt: -1 });
-    res.json(cases);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching cases" });
+    const results = await Case.find({
+      userId,
+      extractedText: { $regex: query, $options: "i" }
+    });
+
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: "Search failed" });
   }
 });
 
-// ================== DELETE CASE ==================
+/* ============================= */
+/* Delete Case                   */
+/* ============================= */
 router.delete("/:id", async (req, res) => {
   try {
     await Case.findByIdAndDelete(req.params.id);
-    res.json({ message: "Case deleted" });
-  } catch (error) {
-    res.status(500).json({ error: "Error deleting case" });
+    res.json({ message: "Case deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Delete failed" });
   }
 });
 
