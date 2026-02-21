@@ -1,146 +1,118 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import API from "../api";
-import { getUserId } from "../utils/auth";
 
 function Dashboard() {
   const [file, setFile] = useState(null);
-  const [cases, setCases] = useState([]);
   const [selectedCase, setSelectedCase] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const userId = getUserId();
-
-  // ================= LOAD CASES =================
-  const fetchCases = async () => {
-    try {
-      const res = await API.get(`/cases/${userId}`);
-      setCases(res.data);
-    } catch (err) {
-      console.error("Error fetching cases");
-    }
-  };
-
-  useEffect(() => {
-    if (userId) fetchCases();
-  }, [userId]);
-
-  // ================= UPLOAD =================
   const uploadCase = async () => {
-    if (!file) return alert("Select a file first");
+    if (!file) return alert("Select file");
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("userId", userId);
+    formData.append("userId", "123");
 
-    try {
-      await API.post("/cases/upload", formData);
-      alert("Uploaded successfully");
-      fetchCases();
-    } catch (err) {
-      alert("Upload failed");
-    }
+    await API.post("/cases/upload", formData);
+    window.location.reload();
   };
 
-  // ================= DELETE =================
   const deleteCase = async () => {
     if (!selectedCase) return;
 
-    try {
-      await API.delete(`/cases/${selectedCase._id}`);
-      alert("Deleted");
-      setSelectedCase(null);
-      fetchCases();
-    } catch (err) {
-      alert("Delete failed");
-    }
+    await API.delete(`/cases/${selectedCase._id}`);
+    window.location.reload();
   };
 
-  // ================= SEARCH =================
-  const filteredCases = cases.filter(c =>
-    c.filename.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
-    <div style={{ display: "flex" }}>
-      
-      <Sidebar cases={filteredCases} setSelectedCase={setSelectedCase} />
+    <div style={{ display: "flex", background: "#020617", minHeight: "100vh" }}>
 
-      <div style={{ padding: "20px", width: "100%" }}>
-        
-        <h2>Upload Case Document</h2>
+      <Sidebar setSelectedCase={setSelectedCase} />
 
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-        <button onClick={uploadCase}>Upload</button>
+      <div style={{
+        flex: 1,
+        padding: "30px",
+        color: "white"
+      }}>
 
-        <br /><br />
+        <h1 style={{ marginBottom: "20px" }}>Dashboard</h1>
 
-        <input
-          type="text"
-          placeholder="Search files..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        {/* Upload Box */}
+        <div style={{
+          background: "#1e293b",
+          padding: "20px",
+          borderRadius: "12px",
+          marginBottom: "20px"
+        }}>
+          <h3>Upload Document</h3>
 
+          <input
+            type="file"
+            onChange={(e) => setFile(e.target.files[0])}
+          />
+
+          <button onClick={uploadCase} style={{
+            marginLeft: "10px",
+            background: "#22c55e",
+            border: "none",
+            padding: "8px 14px",
+            borderRadius: "6px",
+            color: "white",
+            cursor: "pointer"
+          }}>
+            Upload
+          </button>
+        </div>
+
+        {/* Case Display */}
         {selectedCase && (
-          <>
-            <h3>Selected Case</h3>
-            <p><b>File:</b> {selectedCase.filename}</p>
+          <div style={{
+            background: "#1e293b",
+            padding: "20px",
+            borderRadius: "12px"
+          }}>
+            <h3>{selectedCase.filename}</h3>
 
-            {/* 🔥 SUMMARY */}
-            <h4>AI Summary</h4>
-            <div style={{ background: "#eee", padding: "10px" }}>
-              {selectedCase.insights?.summary}
-            </div>
+            <h4 style={{ marginTop: "15px" }}>Summary</h4>
+            <p>{selectedCase.insights?.summary}</p>
 
-            {/* 🔥 KEYWORDS */}
-            <h4>Top Keywords</h4>
-            <div>
+            <h4>Keywords</h4>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
               {selectedCase.insights?.keywords?.map((k, i) => (
                 <span key={i} style={{
-                  marginRight: "8px",
-                  padding: "5px 10px",
-                  background: "black",
-                  color: "white",
-                  borderRadius: "10px"
+                  background: "#334155",
+                  padding: "6px 10px",
+                  borderRadius: "20px",
+                  fontSize: "12px"
                 }}>
                   {k}
                 </span>
               ))}
             </div>
 
-            {/* 🔥 CREDIBILITY SCORE */}
-            <h4>Credibility Score</h4>
-            <div style={{
-              width: "200px",
-              background: "#ddd",
-              borderRadius: "10px",
-              overflow: "hidden"
-            }}>
-              <div style={{
-                width: `${selectedCase.insights?.credibilityScore || 0}%`,
-                background: "green",
-                color: "white",
-                textAlign: "center"
-              }}>
-                {selectedCase.insights?.credibilityScore || 0}%
-              </div>
-            </div>
-
-            {/* 🔥 EXTRACTED TEXT */}
-            <h4>Extracted Text</h4>
-            <div style={{
-              background: "#f5f5f5",
+            <h4 style={{ marginTop: "15px" }}>Extracted Text</h4>
+            <p style={{
+              background: "#020617",
               padding: "10px",
-              maxHeight: "300px",
+              borderRadius: "8px",
+              maxHeight: "200px",
               overflow: "auto"
             }}>
               {selectedCase.extractedText}
-            </div>
+            </p>
 
-            <br />
-            <button onClick={deleteCase}>Delete Case</button>
-          </>
+            <button onClick={deleteCase} style={{
+              marginTop: "15px",
+              background: "#ef4444",
+              border: "none",
+              padding: "8px 14px",
+              borderRadius: "6px",
+              color: "white",
+              cursor: "pointer"
+            }}>
+              Delete Case
+            </button>
+          </div>
         )}
 
       </div>
