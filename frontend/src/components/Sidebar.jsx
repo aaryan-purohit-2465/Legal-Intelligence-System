@@ -1,78 +1,70 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import API from "../api";
-import { getUserId } from "../utils/auth";
+import { FileText, LogOut } from "lucide-react";
 
-function Sidebar({ setSelectedCase, setSearchTerm }) {
-  const navigate = useNavigate();
+function Sidebar({ setSelectedCase }) {
   const [cases, setCases] = useState([]);
-  const [search, setSearch] = useState("");
-
-  const userId = getUserId();
-
-  const fetchCases = async () => {
-    const res = await API.get(`/cases/${userId}`);
-    setCases(res.data);
-  };
-
-  const searchCases = async () => {
-    if (!search) {
-      setSearchTerm("");
-      return fetchCases();
-    }
-
-    setSearchTerm(search);
-
-    const res = await API.get(`/cases/search/${userId}/${search}`);
-    setCases(res.data);
-  };
 
   useEffect(() => {
-    if (userId) fetchCases();
-  }, [userId]);
+    API.get("/cases/123").then((res) => setCases(res.data));
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
-    navigate("/");
+    window.location.href = "/";
   };
 
   return (
-    <div style={{ width: "260px", background: "#111", color: "white", padding: "20px" }}>
-      <h3>AI Legal System</h3>
+    <div style={{
+      width: "260px",
+      height: "100vh",
+      background: "#0f172a",
+      color: "white",
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column"
+    }}>
 
-      <button onClick={logout}>Logout</button>
+      <h2 style={{ marginBottom: "20px" }}>⚖️ AI Legal</h2>
 
-      <hr />
-
-      <input
-        type="text"
-        placeholder="Search documents..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ width: "100%", padding: "6px", marginBottom: "10px" }}
-      />
-
-      <button onClick={searchCases} style={{ width: "100%" }}>
-        Search
+      <button onClick={logout} style={{
+        background: "#ef4444",
+        border: "none",
+        padding: "10px",
+        borderRadius: "8px",
+        color: "white",
+        cursor: "pointer",
+        marginBottom: "20px"
+      }}>
+        <LogOut size={16} /> Logout
       </button>
 
-      <h4 style={{ marginTop: "20px" }}>Case History</h4>
+      <h4 style={{ marginBottom: "10px" }}>Documents</h4>
 
-      {cases.map((c) => (
-        <div
-          key={c._id}
-          style={{
-            padding: "8px",
-            marginBottom: "6px",
-            background: "#222",
-            cursor: "pointer",
-            borderRadius: "6px"
-          }}
-          onClick={() => setSelectedCase(c)}
-        >
-          {c.filename}
-        </div>
-      ))}
+      <div style={{ overflowY: "auto" }}>
+        {cases.map((c) => (
+          <div
+            key={c._id}
+            onClick={() => setSelectedCase(c)}
+            style={{
+              padding: "10px",
+              marginBottom: "10px",
+              background: "#1e293b",
+              borderRadius: "8px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px"
+            }}
+          >
+            <FileText size={16} />
+            <span style={{ fontSize: "13px" }}>
+              {c.filename}
+            </span>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 }
