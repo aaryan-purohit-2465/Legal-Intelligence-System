@@ -25,3 +25,6 @@ app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
 app.use("/api/cases", caseRoutes);
+app.use(cors({
+  origin: "*"
+}));
