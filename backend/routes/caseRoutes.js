@@ -18,9 +18,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-/* ============================= */
-/* Upload + Extract + Insights   */
-/* ============================= */
+
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const dataBuffer = fs.readFileSync(req.file.path);
@@ -65,17 +63,12 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
-/* ============================= */
-/* Get User Cases                */
-/* ============================= */
+
 router.get("/:userId", async (req, res) => {
   const cases = await Case.find({ userId: req.params.userId }).sort({ createdAt: -1 });
   res.json(cases);
 });
 
-/* ============================= */
-/* Search Cases                  */
-/* ============================= */
 router.get("/search/:userId/:query", async (req, res) => {
   const { userId, query } = req.params;
 
@@ -91,9 +84,7 @@ router.get("/search/:userId/:query", async (req, res) => {
   }
 });
 
-/* ============================= */
-/* Delete Case                   */
-/* ============================= */
+
 router.delete("/:id", async (req, res) => {
   try {
     await Case.findByIdAndDelete(req.params.id);
