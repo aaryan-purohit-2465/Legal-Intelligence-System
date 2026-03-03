@@ -38,5 +38,3 @@ Backend: http://localhost:5000
 ## Author
 Aaryan Purohit
 
-## License
-Academic Project
