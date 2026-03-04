@@ -3,7 +3,6 @@ import API from "../api";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -12,7 +11,10 @@ function Login() {
     e.preventDefault();
 
     try {
-      API.post("/api/auth/login", { email, password })
+      const res = await API.post("/auth/login",  {
+        email,
+        password,
+      });
 
       localStorage.setItem("token", res.data.token);
 
@@ -21,6 +23,7 @@ function Login() {
 
     } catch (err) {
       alert("Login failed");
+      console.log(err.response?.data);
     }
   };
 
@@ -32,17 +35,17 @@ function Login() {
         <input
           placeholder="Email"
           value={email}
-          onChange={(e)=>setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button>Login</button>
+        <button type="submit">Login</button>
       </form>
     </div>
   );
