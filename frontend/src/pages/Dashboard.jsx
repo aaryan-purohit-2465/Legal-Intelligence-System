@@ -67,7 +67,26 @@ if (!token) {
       <Sidebar setSelectedCase={setSelectedCase} />
 
       <div style={{ flex: 1, padding: "30px", color: "white" }}>
-        <h1>Dashboard</h1>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+  <h1>Dashboard</h1>
+
+  <button
+    onClick={()=>{
+      localStorage.removeItem("token")
+      window.location.href="/"
+    }}
+    style={{
+      background:"#ef4444",
+      border:"none",
+      padding:"8px 14px",
+      borderRadius:"6px",
+      color:"white",
+      cursor:"pointer"
+    }}
+  >
+    Logout
+  </button>
+</div>
 
         {/* 📊 Stats Section */}
         <div style={{ display: "flex", gap: "20px", marginBottom: "30px" }}>
