@@ -22,33 +22,69 @@ function Register() {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
+  <div style={{
+    height:"100vh",
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+    background:"#020617",
+    color:"white"
+  }}>
 
-      <form onSubmit={handleRegister}>
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+    <form
+      onSubmit={handleRegister}
+      style={{
+        background:"#1e293b",
+        padding:"40px",
+        borderRadius:"12px",
+        width:"320px",
+        display:"flex",
+        flexDirection:"column",
+        gap:"10px"
+      }}
+    >
+      <h2 style={{textAlign:"center"}}>Register</h2>
 
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <input
+        placeholder="Username"
+        value={username}
+        onChange={(e)=>setUsername(e.target.value)}
+        style={{padding:"8px"}}
+      />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e)=>setEmail(e.target.value)}
+        style={{padding:"8px"}}
+      />
 
-        <button type="submit">Register</button>
-      </form>
-    </div>
-  );
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e)=>setPassword(e.target.value)}
+        style={{padding:"8px"}}
+      />
+
+      <button
+        style={{
+          marginTop:"10px",
+          background:"#22c55e",
+          border:"none",
+          padding:"10px",
+          color:"white",
+          cursor:"pointer",
+          borderRadius:"6px"
+        }}
+      >
+        Register
+      </button>
+
+    </form>
+
+  </div>
+);
 }
 
 export default Register;
