@@ -28,27 +28,62 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+  <div style={{
+    height:"100vh",
+    display:"flex",
+    justifyContent:"center",
+    alignItems:"center",
+    background:"#020617",
+    color:"white"
+  }}>
 
-      <form onSubmit={handleLogin}>
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+    <form
+      onSubmit={handleLogin}
+      style={{
+        background:"#1e293b",
+        padding:"40px",
+        borderRadius:"12px",
+        width:"320px",
+        display:"flex",
+        flexDirection:"column",
+        gap:"10px"
+      }}
+    >
+      <h2 style={{textAlign:"center"}}>Login</h2>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e)=>setEmail(e.target.value)}
+        style={{padding:"8px"}}
+      />
 
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e)=>setPassword(e.target.value)}
+        style={{padding:"8px"}}
+      />
+
+      <button
+        style={{
+          marginTop:"10px",
+          background:"#22c55e",
+          border:"none",
+          padding:"10px",
+          color:"white",
+          cursor:"pointer",
+          borderRadius:"6px"
+        }}
+      >
+        Login
+      </button>
+
+    </form>
+
+  </div>
+)
 }
 
 export default Login;
