@@ -3,6 +3,11 @@ import Sidebar from "../components/Sidebar";
 import API from "../api";
 
 function Dashboard() {
+  const token = localStorage.getItem("token");
+
+if (!token) {
+  window.location.href = "/";
+}
   const [file, setFile] = useState(null);
   const [cases, setCases] = useState([]);
   const [selectedCase, setSelectedCase] = useState(null);
