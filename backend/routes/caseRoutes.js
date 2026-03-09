@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-router.post("/upload", upload.single("file"), async (req, res) => {
+router.post("/upload", authMiddleware, upload.single("file"), async (req, res) => {
   try {
     const dataBuffer = fs.readFileSync(req.file.path);
     const pdfData = await pdf(dataBuffer);
