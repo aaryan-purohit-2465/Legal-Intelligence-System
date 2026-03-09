@@ -65,8 +65,8 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
 });
 
 
-router.get("/:userId", async (req, res) => {
-  const cases = await Case.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+router.get("/", authMiddleware, async (req, res) => {
+  const cases = await Case.find({ userId: req.userId });
   res.json(cases);
 });
 
@@ -86,7 +86,7 @@ router.get("/search/:userId/:query", async (req, res) => {
 });
 
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     await Case.findByIdAndDelete(req.params.id);
     res.json({ message: "Case deleted successfully" });
