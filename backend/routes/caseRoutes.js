@@ -3,6 +3,7 @@ import multer from "multer";
 import fs from "fs";
 import { createRequire } from "module";
 import Case from "../models/case.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
