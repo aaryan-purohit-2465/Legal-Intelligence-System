@@ -26,7 +26,6 @@ if (!token) {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("userId", "123");
 
     await API.post("/cases/upload", formData);
     fetchCases();
