@@ -1,31 +1,38 @@
 import { useState } from "react";
+if (!email || !password) {
+  alert("Please enter email and password");
+  return;
+}
 import API from "../api";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const [password, setPassword] = useState("");
+const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await API.post("/auth/login",  {
-        email,
-        password,
-      });
+  try {
+    setLoading(true);
 
-      localStorage.setItem("token", res.data.token);
+    const res = await API.post("/auth/login", {
+      email,
+      password
+    });
 
-      alert("Login successful");
-      navigate("/dashboard");
+    localStorage.setItem("token", res.data.token);
 
-    } catch (err) {
-      alert("Login failed");
-      console.log(err.response?.data);
-    }
-  };
+    navigate("/dashboard");
+
+  } catch (err) {
+    alert("Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
   <div style={{
@@ -79,6 +86,9 @@ function Login() {
       >
         Login
       </button>
+      <button disabled={loading}>
+  {loading ? "Logging in..." : "Login"}
+</button>
 
     </form>
 
