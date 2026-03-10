@@ -1,25 +1,36 @@
 import { useState } from "react";
+if (!username || !email || !password) {
+  alert("Please fill all fields");
+  return;
+}
 import API from "../api";
 
 function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await API.post("/auth/register",  {
-        username,
-        email,
-        password,
-      });
+  e.preventDefault();
 
-      alert(res.data.message);
-    } catch (err) {
-      alert(err.response.data.message);
-    }
-  };
+  try {
+    setLoading(true);
+
+    const res = await API.post("/auth/register", {
+      username,
+      email,
+      password
+    });
+
+    alert("Registration successful");
+
+  } catch (err) {
+    alert("Registration failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
   <div style={{
@@ -80,6 +91,9 @@ function Register() {
       >
         Register
       </button>
+      <button disabled={loading}>
+  {loading ? "Registering..." : "Register"}
+</button>
 
     </form>
 
