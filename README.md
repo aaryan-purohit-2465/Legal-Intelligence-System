@@ -104,4 +104,4 @@ Make sure MongoDB is running locally.
 ## 👨‍💻 Author
 
 Aaryan Purohit  
-B.Tech CSE — SRM Institute of Science and Technology
+B.Tech CSE
