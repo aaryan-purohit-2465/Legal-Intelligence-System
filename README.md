@@ -67,7 +67,7 @@ Legal-Intelligence-System
 ### 1️⃣ Clone Repository
 
 
-git clone <your-repo-link>
+git clone https://github.com/aaryan-purohit-2465/Legal-Intelligence-System
 
 
 ### 2️⃣ Install Backend
