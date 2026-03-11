@@ -20,23 +20,23 @@ A full-stack MERN application that allows users to upload legal documents and au
 
 ## 🛠 Tech Stack
 
-Frontend
+### Frontend
 - React
 - Axios
 - React Router
 
-Backend
+### Backend
 - Node.js
 - Express.js
 
-Database
+### Database
 - MongoDB
 
-Authentication
+### Authentication
 - JWT (JSON Web Tokens)
 - bcrypt password hashing
 
-Other Tools
+### Other Tools
 - Multer (file upload)
 - Nodemon
 
