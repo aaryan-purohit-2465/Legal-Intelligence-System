@@ -22,14 +22,18 @@ if (!token) {
   }, []);
 
   const uploadCase = async () => {
-    if (!file) return alert("Select file");
 
-    const formData = new FormData();
-    formData.append("file", file);
+  if (!file) return alert("Select file");
 
-    await API.post("/cases/upload", formData);
-    fetchCases();
-  };
+  const formData = new FormData();
+  formData.append("file", file);
+
+  await API.post("/cases/upload", formData);
+
+  setFile(null);
+
+  fetchCases(); // IMPORTANT
+};
 
   const deleteCase = async () => {
     if (!selectedCase) return;

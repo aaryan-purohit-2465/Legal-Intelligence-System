@@ -20,8 +20,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
+// ================= UPLOAD =================
 router.post("/upload", authMiddleware, upload.single("file"), async (req, res) => {
   try {
+
     const dataBuffer = fs.readFileSync(req.file.path);
     const pdfData = await pdf(dataBuffer);
 
@@ -45,7 +47,7 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
     const summary = text.slice(0, 300);
 
     const newCase = new Case({
-      userId: req.body.userId,
+      userId: req.userId,   // ✅ FIXED HERE
       filename: req.file.filename,
       extractedText: text,
       insights: {
@@ -65,35 +67,52 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
 });
 
 
+// ================= GET USER CASES =================
 router.get("/", authMiddleware, async (req, res) => {
-  const cases = await Case.find({ userId: req.userId });
-  res.json(cases);
+  try {
+    const cases = await Case.find({ userId: req.userId });
+    res.json(cases);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch cases" });
+  }
 });
 
-router.get("/search/:userId/:query", async (req, res) => {
-  const { userId, query } = req.params;
+
+// ================= SEARCH =================
+router.get("/search/:query", authMiddleware, async (req, res) => {
+
+  const { query } = req.params;
 
   try {
     const results = await Case.find({
-      userId,
+      userId: req.userId,
       extractedText: { $regex: query, $options: "i" }
     });
 
     res.json(results);
+
   } catch (err) {
     res.status(500).json({ message: "Search failed" });
   }
+
 });
 
 
+// ================= DELETE =================
 router.delete("/:id", authMiddleware, async (req, res) => {
+
   try {
+
     await Case.findByIdAndDelete(req.params.id);
+
     res.json({ message: "Case deleted successfully" });
+
   } catch (err) {
+
     res.status(500).json({ message: "Delete failed" });
+
   }
+
 });
 
 export default router;
-
