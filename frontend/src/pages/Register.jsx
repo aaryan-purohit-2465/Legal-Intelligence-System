@@ -1,107 +1,129 @@
 import { useState } from "react";
 import API from "../api";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
 
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [username,setUsername] = useState("");
+  const [email,setEmail] = useState("");
+  const [password,setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
+
     e.preventDefault();
 
-    if (!username || !email || !password) {
+    if(!username || !email || !password){
       alert("Please fill all fields");
       return;
     }
 
-    try {
-      setLoading(true);
+    try{
 
-      const res = await API.post("/auth/register", {
+      const res = await API.post("/auth/register",{
         username,
         email,
         password
       });
 
-      alert("Registration successful");
+      alert(res.data.message);
 
-      setUsername("");
-      setEmail("");
-      setPassword("");
+      navigate("/");
 
-    } catch (err) {
+    }catch(err){
+
       alert("Registration failed");
-    } finally {
-      setLoading(false);
+
     }
-  };
 
-  return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#020617",
-        color: "white",
-      }}
-    >
-      <form
-        onSubmit={handleRegister}
-        style={{
-          background: "#1e293b",
-          padding: "40px",
-          borderRadius: "12px",
-          width: "320px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-        }}
-      >
-        <h2 style={{ textAlign: "center" }}>Register</h2>
+  }
 
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={{ padding: "8px" }}
-        />
+  return(
 
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ padding: "8px" }}
-        />
+    <div style={{
+      height:"100vh",
+      display:"flex",
+      justifyContent:"center",
+      alignItems:"center",
+      background:"#020617"
+    }}>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ padding: "8px" }}
-        />
+      <div style={{
+        background:"#1e293b",
+        padding:"40px",
+        borderRadius:"12px",
+        width:"300px"
+      }}>
 
-        <button
-          disabled={loading}
-          style={{
-            marginTop: "10px",
-            background: "#22c55e",
-            border: "none",
-            padding: "10px",
-            color: "white",
-            cursor: "pointer",
-            borderRadius: "6px",
-          }}
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
+        <h2 style={{color:"white", textAlign:"center", marginBottom:"20px"}}>
+          Register
+        </h2>
+
+        <form onSubmit={handleRegister}>
+
+          <input
+            placeholder="Username"
+            value={username}
+            onChange={(e)=>setUsername(e.target.value)}
+            style={{
+              width:"100%",
+              padding:"10px",
+              marginBottom:"10px",
+              borderRadius:"6px",
+              border:"none"
+            }}
+          />
+
+          <input
+            placeholder="Email"
+            value={email}
+            onChange={(e)=>setEmail(e.target.value)}
+            style={{
+              width:"100%",
+              padding:"10px",
+              marginBottom:"10px",
+              borderRadius:"6px",
+              border:"none"
+            }}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e)=>setPassword(e.target.value)}
+            style={{
+              width:"100%",
+              padding:"10px",
+              marginBottom:"20px",
+              borderRadius:"6px",
+              border:"none"
+            }}
+          />
+
+          <button
+            style={{
+              width:"100%",
+              padding:"10px",
+              background:"#22c55e",
+              border:"none",
+              borderRadius:"6px",
+              color:"white",
+              cursor:"pointer"
+            }}
+          >
+            Register
+          </button>
+
+        </form>
+
+      </div>
+
     </div>
-  );
+
+  )
+
 }
 
 export default Register;
