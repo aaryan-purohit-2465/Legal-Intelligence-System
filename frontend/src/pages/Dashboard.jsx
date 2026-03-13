@@ -32,7 +32,7 @@ if (!token) {
 
   setFile(null);
 
-  fetchCases(); // IMPORTANT
+  fetchCases(); 
 };
 
   const deleteCase = async () => {
