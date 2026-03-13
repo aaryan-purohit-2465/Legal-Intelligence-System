@@ -38,18 +38,22 @@ function Login() {
       height: "100vh",
       display: "flex",
       flexDirection: "column",
-      justifyContent: "center",
       alignItems: "center",
       background: "#020617",
-      fontFamily: "Poppins"
+      fontFamily: "Poppins",
+      paddingTop: "120px"   // pushes title slightly down from top
     }}>
 
       {/* Project Title */}
-      <div style={{ textAlign: "center", marginBottom: "30px" }}>
+
+      <div style={{
+        textAlign: "center",
+        marginBottom: "60px"   // creates space between title and card
+      }}>
 
         <h1 style={{
           color: "white",
-          fontSize: "38px",
+          fontSize: "44px",
           fontWeight: "700",
           letterSpacing: "1px"
         }}>
@@ -58,7 +62,8 @@ function Login() {
 
         <p style={{
           color: "#94a3b8",
-          marginTop: "6px"
+          marginTop: "8px",
+          fontSize: "16px"
         }}>
           AI-powered legal document analysis
         </p>
@@ -67,18 +72,19 @@ function Login() {
 
 
       {/* Login Card */}
+
       <div style={{
         background: "#1e293b",
-        padding: "40px",
-        borderRadius: "12px",
-        width: "320px",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.4)"
+        padding: "45px",
+        borderRadius: "14px",
+        width: "420px",   // wider card
+        boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
       }}>
 
         <h2 style={{
           color: "white",
           textAlign: "center",
-          marginBottom: "20px"
+          marginBottom: "25px"
         }}>
           Login
         </h2>
@@ -91,10 +97,11 @@ function Login() {
             onChange={(e)=>setEmail(e.target.value)}
             style={{
               width: "100%",
-              padding: "10px",
-              marginBottom: "10px",
+              padding: "12px",
+              marginBottom: "12px",
               borderRadius: "6px",
-              border: "none"
+              border: "none",
+              fontSize: "14px"
             }}
           />
 
@@ -105,21 +112,23 @@ function Login() {
             onChange={(e)=>setPassword(e.target.value)}
             style={{
               width: "100%",
-              padding: "10px",
+              padding: "12px",
               marginBottom: "20px",
               borderRadius: "6px",
-              border: "none"
+              border: "none",
+              fontSize: "14px"
             }}
           />
 
           <button style={{
             width: "100%",
-            padding: "10px",
+            padding: "12px",
             background: "#22c55e",
             border: "none",
             borderRadius: "6px",
             color: "white",
-            cursor: "pointer"
+            cursor: "pointer",
+            fontSize: "15px"
           }}>
             Login
           </button>
@@ -130,7 +139,7 @@ function Login() {
         <p style={{
           color: "white",
           textAlign: "center",
-          marginTop: "15px"
+          marginTop: "18px"
         }}>
           Don't have an account?
         </p>
@@ -139,8 +148,8 @@ function Login() {
           onClick={()=>navigate("/register")}
           style={{
             width: "100%",
-            padding: "10px",
-            marginTop: "8px",
+            padding: "12px",
+            marginTop: "10px",
             background: "#3b82f6",
             border: "none",
             borderRadius: "6px",

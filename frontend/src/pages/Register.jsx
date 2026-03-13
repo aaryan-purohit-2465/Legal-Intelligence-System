@@ -21,7 +21,7 @@ function Register() {
 
     try{
 
-      const res = await API.post("/auth/register",{
+      await API.post("/auth/register",{
         username,
         email,
         password
@@ -45,24 +45,33 @@ function Register() {
       height:"100vh",
       display:"flex",
       flexDirection:"column",
-      justifyContent:"center",
       alignItems:"center",
       background:"#020617",
-      fontFamily:"Poppins"
+      fontFamily:"Poppins",
+      paddingTop:"120px"
     }}>
 
-      {/* Title */}
-      <div style={{ textAlign:"center", marginBottom:"30px" }}>
+      {/* Project Title */}
+
+      <div style={{
+        textAlign:"center",
+        marginBottom:"60px"
+      }}>
 
         <h1 style={{
           color:"white",
-          fontSize:"38px",
-          fontWeight:"700"
+          fontSize:"44px",
+          fontWeight:"700",
+          letterSpacing:"1px"
         }}>
           Legal Intelligence System
         </h1>
 
-        <p style={{ color:"#94a3b8" }}>
+        <p style={{
+          color:"#94a3b8",
+          marginTop:"8px",
+          fontSize:"16px"
+        }}>
           Create your account
         </p>
 
@@ -70,18 +79,19 @@ function Register() {
 
 
       {/* Register Card */}
+
       <div style={{
         background:"#1e293b",
-        padding:"40px",
-        borderRadius:"12px",
-        width:"320px",
-        boxShadow:"0 10px 25px rgba(0,0,0,0.4)"
+        padding:"45px",
+        borderRadius:"14px",
+        width:"420px",
+        boxShadow:"0 10px 30px rgba(0,0,0,0.5)"
       }}>
 
         <h2 style={{
           color:"white",
           textAlign:"center",
-          marginBottom:"20px"
+          marginBottom:"25px"
         }}>
           Register
         </h2>
@@ -94,10 +104,11 @@ function Register() {
             onChange={(e)=>setUsername(e.target.value)}
             style={{
               width:"100%",
-              padding:"10px",
-              marginBottom:"10px",
+              padding:"12px",
+              marginBottom:"12px",
               borderRadius:"6px",
-              border:"none"
+              border:"none",
+              fontSize:"14px"
             }}
           />
 
@@ -107,10 +118,11 @@ function Register() {
             onChange={(e)=>setEmail(e.target.value)}
             style={{
               width:"100%",
-              padding:"10px",
-              marginBottom:"10px",
+              padding:"12px",
+              marginBottom:"12px",
               borderRadius:"6px",
-              border:"none"
+              border:"none",
+              fontSize:"14px"
             }}
           />
 
@@ -121,26 +133,52 @@ function Register() {
             onChange={(e)=>setPassword(e.target.value)}
             style={{
               width:"100%",
-              padding:"10px",
+              padding:"12px",
               marginBottom:"20px",
               borderRadius:"6px",
-              border:"none"
+              border:"none",
+              fontSize:"14px"
             }}
           />
 
           <button style={{
             width:"100%",
-            padding:"10px",
+            padding:"12px",
             background:"#22c55e",
             border:"none",
             borderRadius:"6px",
             color:"white",
-            cursor:"pointer"
+            cursor:"pointer",
+            fontSize:"15px"
           }}>
             Register
           </button>
 
         </form>
+
+        <p style={{
+          color:"white",
+          textAlign:"center",
+          marginTop:"18px"
+        }}>
+          Already have an account?
+        </p>
+
+        <button
+          onClick={()=>navigate("/")}
+          style={{
+            width:"100%",
+            padding:"12px",
+            marginTop:"10px",
+            background:"#3b82f6",
+            border:"none",
+            borderRadius:"6px",
+            color:"white",
+            cursor:"pointer"
+          }}
+        >
+          Back to Login
+        </button>
 
       </div>
 
