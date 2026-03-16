@@ -101,7 +101,7 @@ function Dashboard() {
               cursor:"pointer"
             }}
           >
-            {c.filename}
+            {c.filename.slice(14)}
           </div>
         ))}
 
