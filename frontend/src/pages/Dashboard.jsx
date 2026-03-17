@@ -101,7 +101,16 @@ function Dashboard() {
               cursor:"pointer"
             }}
           >
-            {c.filename.slice(14)}
+            <span
+  style={{
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    display: "block"
+  }}
+>
+  {c.filename.slice(14)}
+</span>
           </div>
         ))}
 
