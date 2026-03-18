@@ -70,6 +70,7 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
 
     // Pick best sentences
     const summary = sentenceScores
+    
       .sort((a, b) => b.score - a.score)
       .slice(0, 3)
       .map(s => s.sentence)
