@@ -201,6 +201,12 @@ function Dashboard() {
                 </span>
               ))}
             </div>
+            <h4>Guilt Probability</h4>
+{Object.entries(selectedCase.insights?.verdict || {}).map(([party, score], i) => (
+  <div key={i}>
+    {party}: {score}% likely guilty
+  </div>
+))}
 
             <button
               onClick={deleteCase}
