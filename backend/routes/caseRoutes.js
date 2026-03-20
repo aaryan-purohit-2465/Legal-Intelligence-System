@@ -10,7 +10,7 @@ const pdf = require("pdf-parse");
 
 const router = express.Router();
 
-// ================= FILE UPLOAD =================
+
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: (req, file, cb) => {
@@ -20,7 +20,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ================= UPLOAD ROUTE =================
 router.post("/upload", authMiddleware, upload.single("file"), async (req, res) => {
   try {
     const dataBuffer = fs.readFileSync(req.file.path);
@@ -29,12 +28,12 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
 
     const cleanText = text.replace(/\s+/g, " ").trim();
 
-    // ================= SUMMARY =================
+    
     const sentences = cleanText.split(". ");
 
     let summary = sentences.slice(0, 3).join(". ");
 
-    // ================= KEYWORDS =================
+    
     const words = cleanText
       .toLowerCase()
       .replace(/[^a-zA-Z ]/g, "")
@@ -50,7 +49,7 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
       .sort((a, b) => frequency[b] - frequency[a])
       .slice(0, 10);
 
-    // ================= PARTY DETECTION =================
+    
     let parties = [];
 
     const partyMatch = cleanText.match(/between (.*?) and (.*?)[\.,]/i);
@@ -63,7 +62,7 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
       parties = ["Party A", "Party B"];
     }
 
-    // ================= GUILT ANALYSIS =================
+    
     const negativeWords = [
       "breach",
       "violation",
@@ -95,12 +94,12 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
       });
     });
 
-    // ================= FIX: DEFAULT VALUES =================
+    
     let verdict = {};
     const total = Object.values(scores).reduce((a, b) => a + b, 0);
 
     if (total === 0) {
-      // No negative words found → neutral distribution
+      
       const equal = Math.round(100 / parties.length);
       parties.forEach(p => {
         verdict[p] = equal;
@@ -111,7 +110,7 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
       }
     }
 
-    // ================= SAVE =================
+    
     const newCase = new Case({
       userId: req.userId,
       filename: req.file.filename,
@@ -133,13 +132,13 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
   }
 });
 
-// ================= GET =================
+
 router.get("/", authMiddleware, async (req, res) => {
   const cases = await Case.find({ userId: req.userId });
   res.json(cases);
 });
 
-// ================= DELETE =================
+
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     await Case.findByIdAndDelete(req.params.id);
