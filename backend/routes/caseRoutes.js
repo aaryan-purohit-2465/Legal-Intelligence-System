@@ -10,7 +10,7 @@ const pdf = require("pdf-parse");
 
 const router = express.Router();
 
-// ================= FILE UPLOAD SETUP =================
+// ================= FILE UPLOAD =================
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: (req, file, cb) => {
@@ -27,12 +27,19 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
     const pdfData = await pdf(dataBuffer);
     const text = pdfData.text;
 
-    // ================= KEYWORD EXTRACTION =================
-    const words = text
+    const cleanText = text.replace(/\s+/g, " ").trim();
+
+    // ================= SUMMARY =================
+    const sentences = cleanText.split(". ");
+
+    let summary = sentences.slice(0, 3).join(". ");
+
+    // ================= KEYWORDS =================
+    const words = cleanText
       .toLowerCase()
       .replace(/[^a-zA-Z ]/g, "")
       .split(" ")
-      .filter(word => word.length > 4);
+      .filter(word => word.length > 5);
 
     const frequency = {};
     words.forEach(word => {
@@ -43,30 +50,10 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
       .sort((a, b) => frequency[b] - frequency[a])
       .slice(0, 10);
 
-    // ================= IMPROVED SUMMARY =================
-    const sentences = text.split(". ");
-    const sentenceScores = sentences.map(sentence => {
-      let score = 0;
-      const lower = sentence.toLowerCase();
-
-      keywords.forEach(k => {
-        if (lower.includes(k)) score++;
-      });
-
-      return { sentence, score };
-    });
-
-    const topSentences = sentenceScores
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
-      .map(s => s.sentence);
-
-    const summary = topSentences.join(". ");
-
     // ================= PARTY DETECTION =================
     let parties = [];
 
-    const partyMatch = text.match(/between (.*?) and (.*?)[\.,]/i);
+    const partyMatch = cleanText.match(/between (.*?) and (.*?)[\.,]/i);
 
     if (partyMatch) {
       parties = [partyMatch[1].trim(), partyMatch[2].trim()];
@@ -97,26 +84,38 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
       negativeWords.forEach(word => {
         if (lower.includes(word)) {
           parties.forEach(party => {
-            if (sentence.toLowerCase().includes(party.split(" ")[0].toLowerCase())) {
-              scores[party] += 1;
+            const partyKey = party.split(" ")[0].toLowerCase();
+            if (lower.includes(partyKey)) {
+              scores[party] += 2; // stronger weight
+            } else {
+              scores[party] += 1; // generic penalty
             }
           });
         }
       });
     });
 
-    const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
-
+    // ================= FIX: DEFAULT VALUES =================
     let verdict = {};
-    for (let party in scores) {
-      verdict[party] = Math.round((scores[party] / total) * 100);
+    const total = Object.values(scores).reduce((a, b) => a + b, 0);
+
+    if (total === 0) {
+      // No negative words found → neutral distribution
+      const equal = Math.round(100 / parties.length);
+      parties.forEach(p => {
+        verdict[p] = equal;
+      });
+    } else {
+      for (let party in scores) {
+        verdict[party] = Math.round((scores[party] / total) * 100);
+      }
     }
 
-    // ================= SAVE TO DB =================
+    // ================= SAVE =================
     const newCase = new Case({
       userId: req.userId,
       filename: req.file.filename,
-      extractedText: text,
+      extractedText: cleanText,
       insights: {
         summary,
         keywords,
@@ -134,13 +133,13 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
   }
 });
 
-// ================= GET ALL CASES =================
+// ================= GET =================
 router.get("/", authMiddleware, async (req, res) => {
   const cases = await Case.find({ userId: req.userId });
   res.json(cases);
 });
 
-// ================= DELETE CASE =================
+// ================= DELETE =================
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     await Case.findByIdAndDelete(req.params.id);
