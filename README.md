@@ -1,5 +1,5 @@
 # Legal Intelligence System
-
+Bringing in some changes as and when needed
 A full-stack MERN application that allows users to upload legal documents and automatically analyze them for insights such as credibility score, summaries, and keywords.
 
 ---
