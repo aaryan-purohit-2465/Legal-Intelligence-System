@@ -4,6 +4,7 @@ import fs from "fs";
 import { createRequire } from "module";
 import Case from "../models/case.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import { generateSummary } from "../services/geminiService.js";
 
 const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
@@ -29,9 +30,7 @@ router.post("/upload", authMiddleware, upload.single("file"), async (req, res) =
     const cleanText = text.replace(/\s+/g, " ").trim();
 
     
-    const sentences = cleanText.split(". ");
-
-    let summary = sentences.slice(0, 3).join(". ");
+    const summary = await generateSummary(cleanText);
 
     
     const words = cleanText
